@@ -17,6 +17,8 @@ var (
 	_gSugar  atomic.Value
 )
 
+// 初始化日志
+// New Log
 func New(cfg *Config) {
 	if cfg == nil {
 		cfg = &Config{
@@ -31,6 +33,8 @@ func New(cfg *Config) {
 	Reset(l, p)
 }
 
+// 重置
+// Reset
 func Reset(logger *zap.Logger, props *ZapProperties) {
 	_gLogger.Store(logger)
 	_gSugar.Store(logger.Sugar())
@@ -56,19 +60,13 @@ func Sync() error {
 // InitLogger initializes a zap logger.
 func InitLogger(cfg *Config, opts ...zap.Option) (*zap.Logger, *ZapProperties, error) {
 	var output zapcore.WriteSyncer
-	if len(cfg.File.Filename) > 0 {
-		lg, err := initFileLog(&cfg.File)
-		if err != nil {
-			return nil, nil, err
-		}
-		output = zapcore.AddSync(lg)
-	} else {
-		stdOut, _, err := zap.Open([]string{"stdout"}...)
-		if err != nil {
-			return nil, nil, err
-		}
-		output = stdOut
+
+	lg, err := initFileLog(&cfg.File)
+	if err != nil {
+		return nil, nil, err
 	}
+	output = zapcore.AddSync(lg)
+
 	return InitLoggerWithWriteSyncer(cfg, output, opts...)
 }
 
